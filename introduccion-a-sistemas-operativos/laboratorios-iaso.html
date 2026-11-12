@@ -739,10 +739,10 @@ body.proj .caption{font-size:1rem}
 </div>
 <aside class="side" id="side">
   <div class="tabs" role="tablist">
-    <button data-tab="pasos" class="on">Paso a paso</button><button data-tab="vyd">Ventajas y desventajas</button><button data-tab="ejercicio">Ejercicio</button>
+    <button data-tab="concepto" class="on">Concepto</button><button data-tab="pasos">Paso a paso</button><button data-tab="vyd">Ventajas y desventajas</button><button data-tab="ejercicio">Ejercicio</button>
   </div>
-  <div class="pane" id="pane-concepto" hidden></div>
-  <div class="pane on" id="pane-pasos"></div>
+  <div class="pane on" id="pane-concepto"></div>
+  <div class="pane" id="pane-pasos"></div>
   <div class="pane" id="pane-vyd"></div>
   <div class="pane" id="pane-ejercicio"></div>
 </aside>
@@ -1275,7 +1275,7 @@ function stopPlay() { if (playTimer) { clearInterval(playTimer); playTimer = nul
 function makeSide(id) {
   const side = $(`.side[data-side="${id}"]`); if (!side) return;
   const C = CONTENT[id];
-  const tabs = id === 'objetivos' ? [['uso', 'Cómo usar']] : [['pasos', 'Paso a paso'], ['vyd', 'Ventajas y desventajas'], ['ej', 'Ejercicio']];
+  const tabs = id === 'objetivos' ? [['concepto', 'Concepto'], ['uso', 'Cómo usar']] : [['concepto', 'Concepto'], ['pasos', 'Paso a paso'], ['vyd', 'Ventajas y desventajas'], ['ej', 'Ejercicio']];
   side.innerHTML = `<div class="tabs" role="tablist">${tabs.map((t, i) => `<button role="tab" data-tab="${t[0]}" class="${i ? '' : 'on'}">${t[1]}</button>`).join('')}</div><div class="panes">` +
     tabs.map((t, i) => `<div class="pane ${i ? '' : 'on'}" data-pane="${t[0]}">${t[0] === 'pasos' ? '<ol class="steplist"></ol>' : t[0] === 'ej' ? '<div class="exbox"></div>' : (C[t[0]] || '')}</div>`).join('') + `</div>`;
   side.addEventListener('click', e => {
@@ -1306,11 +1306,16 @@ function addSvgTools(container) {
 }
 
 /* =====================================================================
-   CONTENIDO TEXTUAL (Ventajas y desventajas)
+   CONTENIDO TEXTUAL (Concepto · Ventajas y desventajas)
    ===================================================================== */
 const CONTENT = {
   objetivos: {
-    concepto: ``,
+    concepto: `<h3>El SO y la memoria</h3>
+<p>El sistema operativo se ubica entre las aplicaciones del usuario y el hardware. Sus objetivos generales son <b>abstraer la complejidad del hardware</b> al usuario y sus aplicaciones, y <b>administrar y proteger los recursos</b> de la computadora.</p>
+<p>Los recursos pueden ser <b>reales</b> (procesador, memoria RAM, discos, dispositivos) o <b>virtuales</b> (programas, procesos, archivos, conexiones). La <b>memoria principal</b> es un recurso real imprescindible: todo proceso necesita tener su imagen cargada en la RAM para ejecutarse.</p>
+<h4>Objetivos de la administración de memoria</h4>
+<ul><li>Simplificar (y abstraer) el uso de la memoria a los usuarios.</li><li>Optimizar el uso de la memoria principal de la computadora.</li><li>Permitir proteger los datos y compartir datos.</li></ul>
+<p>Cada método de organizar la memoria (partición fija, partición dinámica, paginación, segmentación + paginación) es un compromiso distinto entre estos objetivos.</p>`,
     uso: `<h3>Cómo usar el laboratorio</h3>
 <ul><li>Cada sección tiene un diagrama interactivo y una barra de pasos con la explicación de cada paso.</li>
 <li><kbd>←</kbd> <kbd>→</kbd> avanzan y retroceden; <kbd>Espacio</kbd> reproduce o pausa; <kbd>R</kbd> reinicia.</li>
@@ -1321,7 +1326,14 @@ const CONTENT = {
 <li>El botón <b>Copiar SVG</b> copia el diagrama para usarlo en otro material.</li></ul>`
   },
   imagen: {
-    concepto: ``,
+    concepto: `<h3>Imagen del proceso</h3>
+<p>Para ejecutarse, el programa se convierte en proceso y el SO carga en la memoria principal su <b>imagen</b>:</p>
+<ul><li><b>PCB</b> (bloque de control del proceso): identificación, estado, contexto del procesador e información para administrar su memoria (por ejemplo, el registro base).</li>
+<li><b>Datos</b>: variables globales y memoria dinámica del programa.</li>
+<li><b>Instrucciones</b>: el código ejecutable.</li>
+<li><b>Pila</b>: parámetros, direcciones de retorno y variables locales de las llamadas a funciones.</li></ul>
+<p>Desde el punto de vista del proceso, su imagen ocupa de <b>0 a X bytes</b>. La RAM, en cambio, va de <b>0 a N bytes</b> y la comparten el SO y todos los procesos cargados: la imagen queda en alguna zona que el programador no conoce de antemano y que incluso puede cambiar durante la ejecución.</p>
+<p><i>¿Cómo se logra que sea transparente a los usuarios y sus aplicaciones?</i> Distinguiendo la <b>dirección relativa</b> (posición dentro de la imagen, la que usa el programa) de la <b>dirección absoluta</b> (posición física en la RAM) y traduciendo una en otra al ejecutar.</p>`,
     vyd: `<h3>Ventajas y desventajas de trabajar con direcciones relativas</h3>
 <ul class="pro"><li>El compilador genera código independiente de dónde se cargue el programa.</li>
 <li>El SO puede cargar la imagen en cualquier zona libre y moverla después (intercambio, compactación).</li>
@@ -1330,7 +1342,13 @@ const CONTENT = {
 <li>El SO debe registrar dónde está cada imagen (PCB, tablas) y ocupar memoria para ello.</li></ul>`
   },
   reubicacion: {
-    concepto: ``,
+    concepto: `<h3>Dirección relativa y absoluta</h3>
+<p>El <b>compilador</b> traduce el código fuente a código objeto y el <b>enlazador</b> lo combina con las <b>librerías</b> para producir el ejecutable. Todas sus referencias a memoria (<code>&lt;READ 123&gt;</code>, <code>&lt;WRITE 321&gt;</code>, <code>&lt;GOTO 10&gt;</code>) son <b>direcciones relativas</b>: desplazamientos desde el comienzo de la imagen (0 B).</p>
+<p>Al cargar el proceso, el SO elige dónde ubicarlo y guarda esa dirección inicial en el PCB como <b>registro base</b>. Cuando el proceso pasa a ejecución, el valor se carga en el procesador y, en cada acceso, el hardware calcula:</p>
+<p class="mono" style="text-align:center">absoluta = base + relativa &nbsp;·&nbsp; 600 + 123 = 723</p>
+<p>Esto es <b>reubicación dinámica</b>: si el SO mueve la imagen, sólo cambia el registro base; el ejecutable no se modifica.</p>
+<h4>Protección</h4>
+<p>Junto al base se guarda el <b>registro límite</b> (tamaño de la imagen). Antes de sumar, el hardware verifica <span class="mono">relativa &lt; límite</span>; si no se cumple, genera una interrupción y el SO trata el error. Así un proceso no puede leer ni escribir fuera de su imagen.</p>`,
     vyd: `<h3>Registro base y límite</h3>
 <ul class="pro"><li>Permite reubicar el proceso cambiando un solo valor.</li>
 <li>Protección simple: un comparador impide salir de la imagen.</li>
@@ -1340,7 +1358,15 @@ const CONTENT = {
 <li>Cada acceso a memoria paga una comparación y una suma (despreciable en hardware, inviable en software).</li></ul>`
   },
   'particion-dinamica': {
-    concepto: ``,
+    concepto: `<h3>Partición dinámica</h3>
+<p>A cada proceso se le asigna <b>exactamente la memoria que necesita</b>, en una zona contigua. Al comienzo la memoria libre es un solo bloque; a medida que los procesos llegan y terminan quedan <b>huecos</b> de distintos tamaños.</p>
+<p><b>Ejemplo de la clase</b>: RAM de 640 B; SO 84 B, P1 176 B, P2 350 B y 30 B libres. Termina P1 → hueco de 176 B. Llega P3 de 200 B: hay 176 + 30 = 206 B libres, pero ningún hueco de 200 B → no entra. Eso es <b>fragmentación externa</b>: memoria libre suficiente en total, repartida en huecos no contiguos.</p>
+<h4>Algoritmos de ubicación</h4>
+<ul><li><b>First Fit</b>: el primer hueco (desde el comienzo) donde entra.</li>
+<li><b>Best Fit</b>: el hueco más chico donde entra; deja restos muy pequeños.</li>
+<li><b>Worst Fit</b>: el hueco más grande; deja restos grandes, aprovechables.</li>
+<li><b>Next Fit</b>: como First Fit, pero busca a partir de la última asignación.</li></ul>
+<p><b>Compactación</b>: el SO desplaza los procesos para juntar los huecos en uno solo. Necesita reubicación dinámica y consume tiempo de CPU.</p>`,
     vyd: `<h3>Partición dinámica</h3>
 <ul class="pro"><li>No hay fragmentación interna: cada proceso recibe lo que pide.</li>
 <li>Mejor aprovechamiento que la partición fija; el número de procesos no está fijado de antemano.</li></ul>
@@ -1351,7 +1377,11 @@ const CONTENT = {
 <p class="note">Según Stallings, First Fit suele ser el más simple y rápido y da buenos resultados; Best Fit, paradójicamente, tiende a generar muchos huecos diminutos.</p>`
   },
   'particion-fija': {
-    concepto: ``,
+    concepto: `<h3>Partición fija</h3>
+<p>La memoria se divide de antemano, al iniciar el sistema, en <b>particiones de límites fijos</b>. Cada partición aloja <b>un único proceso</b> de tamaño menor o igual al suyo.</p>
+<p><b>Igual tamaño</b> (clase): 640 B en tres particiones con límites en 213 B y 426 B. SO (84 B) en la primera → sobran 129 B; P1 (176 B) en la segunda → sobran 37 B. Ese espacio sobrante dentro de una partición ocupada es la <b>fragmentación interna</b>. P2 (350 B) es más grande que cualquier partición (214 B como máximo) y no puede cargarse.</p>
+<p><b>Tamaño variable</b> (clase): particiones 0–100, 100–250 y 250–640 B. SO → sobran 16 B; P1 no entra en la de 150 B y se carga en la de 390 B → sobran 214 B; P2 (350 B) sólo cabría en la de 390 B, que está ocupada.</p>
+<p>La cantidad de particiones limita el grado de multiprogramación.</p>`,
     vyd: `<h3>Partición fija</h3>
 <ul class="pro"><li>Muy simple de implementar; poca sobrecarga para el SO.</li>
 <li>Con tamaños variables se reduce el desperdicio respecto de las de igual tamaño.</li></ul>
@@ -1361,7 +1391,12 @@ const CONTENT = {
 <li>Los tamaños se fijan al iniciar y no se adaptan a la carga.</li></ul>`
   },
   paginacion: {
-    concepto: ``,
+    concepto: `<h3>Paginación</h3>
+<p>La memoria principal se divide en <b>marcos</b> (frames) de igual tamaño, y la imagen de cada proceso en <b>páginas</b> del mismo tamaño: <b>Página = 20 B = Marco</b>. Cada página se carga en <b>cualquier marco libre</b>: la imagen ya no necesita ser contigua.</p>
+<p>P1 (176 B) → 9 páginas (P0..P8); la última usa 16 B y deja <b>4 B libres</b>: fragmentación interna <b>mínima</b>, nunca mayor que una página por proceso. No hay fragmentación externa: cualquier marco libre sirve. La RAM de 640 B tiene 640 / 20 = <b>32 marcos</b>.</p>
+<h4>Quién hace qué</h4>
+<p><span class="tag so">Sistema operativo</span> administra páginas y marcos: lleva la lista de marcos libres y una <b>tabla de páginas por proceso</b> (página → marco).</p>
+<p><span class="tag hw">Hardware</span> traduce cada dirección: nro de página = relativa div tamaño; desplazamiento = relativa mod tamaño; absoluta = marco × tamaño + desplazamiento. Con tamaños potencia de 2 la división es inmediata: los bits altos de la dirección son el número de página y los bajos, el desplazamiento.</p>`,
     vyd: `<h3>Paginación</h3>
 <ul class="pro"><li>Sin fragmentación externa ni necesidad de compactar.</li>
 <li>Fragmentación interna mínima (sólo en la última página de cada proceso).</li>
@@ -1372,7 +1407,12 @@ const CONTENT = {
 <li>Las páginas no coinciden con las partes lógicas del programa, lo que dificulta proteger y compartir por partes (lo resuelve la segmentación).</li></ul>`
   },
   segmentacion: {
-    concepto: ``,
+    concepto: `<h3>Segmentación + Paginación</h3>
+<p>La <b>segmentación</b> divide la imagen del proceso en <b>segmentos</b> de tamaño variable que corresponden a partes lógicas del programa (código, datos, pila…). Combinada con paginación, cada segmento se divide a su vez en <b>páginas</b> que se cargan en marcos.</p>
+<p><span class="tag so">Sistema operativo</span> mantiene por proceso una <b>tabla de segmentos</b> (tamaño y <b>atributos</b>: lectura, escritura, ejecución) y una <b>tabla de páginas</b> por segmento.</p>
+<p><span class="tag hw">Hardware</span> traduce: la dirección relativa es (nro de segmento, desplazamiento). Verifica que el desplazamiento no supere el tamaño del segmento y que los atributos permitan la operación; luego calcula nro de página y desplazamiento y obtiene el nro de marco: <b>nro segmento + nro página → nro marco</b>.</p>
+<h4>Proteger y compartir</h4>
+<p>Cada segmento tiene sus propios permisos (por ejemplo, código sólo lectura/ejecución). Dos procesos pueden <b>compartir</b> un segmento haciendo que sus tablas apunten a los mismos marcos, incluso con atributos distintos para cada uno.</p>`,
     vyd: `<h3>Segmentación + Paginación</h3>
 <ul class="pro"><li>Protección y compartición con la granularidad lógica del programa.</li>
 <li>Sin fragmentación externa (los segmentos se paginan).</li>
@@ -3631,7 +3671,7 @@ const S6 = {
 const SECTIONS = [S1,S2,S3,S4,S5,S6];
 const NAMES = {idea:'Idea de memoria virtual', paginacion:'Paginación sin / con MV', traduccion:'Traducción de direcciones', vecindad:'Principio de vecindad', politicas:'Políticas', algoritmos:'Algoritmos de reemplazo'};
 const App = {
-  cur:null, tab:'pasos', inited:new Set(),
+  cur:null, tab:'concepto', inited:new Set(),
   start(){
     readColors();
     $('#nav').innerHTML = SECTIONS.map((s,j)=>`<a href="#${s.id}" data-id="${s.id}"><span class="n">${j+1}</span>${NAMES[s.id]}</a>`).join('');
@@ -3710,35 +3750,64 @@ const App = {
    ===================================================================== */
 const CONTENT = {
 idea:{
-concepto:``,
+concepto:`<h3>¿Qué es la memoria virtual?</h3>
+<p>Es una técnica del sistema operativo que permite ejecutar un proceso <b>sin que toda su imagen</b> (PCB, datos, instrucciones y pila) esté cargada en la memoria principal. La imagen completa se guarda en el <b>disco rígido</b> (área de intercambio) y en la RAM sólo residen las partes que se están usando.</p>
+<p>Cuando el proceso referencia una parte que no está en memoria, el hardware lo detecta y el SO la trae desde el disco: es un <b>fallo de página</b>. El programador ve un espacio de direcciones grande y continuo (memoria <i>virtual</i>), independiente de cuánta memoria <i>real</i> haya.</p>
+<div class="def">Objetivos de la administración de memoria: simplificar (y abstraer) el uso de la memoria a los usuarios, optimizar el uso de la memoria principal y permitir proteger y compartir datos.</div>
+<h4>En el diagrama</h4>
+<ul><li>Con <b>memoria virtual</b> el proceso arranca sin páginas en RAM y las va cargando por demanda.</li><li>Con <b>sin memoria virtual</b>, si los marcos disponibles no alcanzan para la imagen completa el proceso directamente no puede ejecutarse.</li><li>Variá la cantidad de marcos: con menos marcos hay más fallos.</li></ul>`,
 vyd:`<h3>Ventajas</h3><ul class="pro"><li>Se pueden ejecutar procesos más grandes que la memoria física.</li><li>Más procesos simultáneos en memoria (mayor grado de multiprogramación): cada uno ocupa sólo lo que usa.</li><li>Arranque más rápido: no hace falta leer toda la imagen antes de ejecutar.</li><li>Se aprovechan mejor los marcos: partes que nunca se usan (rutinas de error, por ejemplo) no consumen RAM.</li></ul>
 <h3>Desventajas</h3><ul class="con"><li>Cada fallo de página cuesta una E/S de disco: miles de veces más lento que un acceso a RAM.</li><li>Requiere soporte de hardware (bit de presencia, excepción de fallo de página) y un SO más complejo.</li><li>Con pocos marcos aparece la <b>hiperpaginación</b> (thrashing): el sistema pasa más tiempo cargando páginas que ejecutando.</li><li>El tiempo de acceso a memoria deja de ser predecible.</li></ul>`},
 paginacion:{
-concepto:``,
+concepto:`<h3>Paginación sin y con memoria virtual</h3>
+<p>En la paginación la imagen del proceso se divide en <b>páginas</b> de tamaño fijo y la memoria en <b>marcos</b> (frames) del mismo tamaño. La <b>tabla de páginas</b> indica en qué marco está cada página. En el ejemplo, P1 ocupa 176 B y la página mide 20 B: son 9 páginas (P0…P8), la última con 16 B útiles.</p>
+<p><b>Sin memoria virtual</b> todas las páginas deben estar cargadas para que el proceso ejecute; la tabla sólo tiene Página → Marco.</p>
+<p><b>Con memoria virtual</b> la tabla agrega la columna <b>¿Presente?</b>: sólo algunas páginas están en RAM (en el ejemplo, 2→7, 5→22 y 6→10). Las demás están en disco y su marco figura como “-”.</p>
+<div class="def">Dirección absoluta = Nro de marco × tamaño de página + desplazamiento.</div>`,
 vyd:`<h3>Paginación con memoria virtual</h3><ul class="pro"><li>No hay fragmentación externa: cualquier marco libre sirve para cualquier página.</li><li>Las páginas de un proceso no necesitan ser contiguas ni estar todas cargadas.</li><li>Facilita compartir páginas (código común) y proteger por página.</li></ul>
 <ul class="con"><li>Fragmentación interna en la última página (P8 usa 16 de 20 B).</li><li>La tabla de páginas ocupa memoria (una entrada por página) y cada acceso requiere consultarla.</li><li>Los accesos a páginas no presentes provocan fallos de página costosos.</li></ul>`},
 traduccion:{
-concepto:``,
+concepto:`<h3>Traducción de direcciones con bit de presencia</h3>
+<p>El proceso trabaja con <b>direcciones relativas (o virtuales)</b>, formadas por <span class="mono">Nro Página | Desplazamiento</span>. El hardware usa el número de página como índice en la tabla de páginas del proceso:</p>
+<ul><li>Si la página está <b>Presente</b>, reemplaza el Nro Página por el <b>Nro Marco</b> y conserva el desplazamiento: se obtiene la <b>dirección absoluta (o real)</b>.</li><li>Si <b>No está presente</b>, genera un <b>fallo de página</b>: una interrupción que transfiere el control al SO, que trae la página desde el disco a memoria principal, actualiza la tabla y hace que la instrucción se reintente.</li></ul>
+<h4>¿Quién hace qué?</h4>
+<table class="pt" style="font-size:.8rem"><tr><th>Tarea</th><th>Responsable</th></tr><tr><td style="text-align:left">Administración de páginas y marcos</td><td>Sistema Operativo</td></tr><tr><td style="text-align:left">Traducción Nro Página → Nro Marco</td><td>Hardware</td></tr><tr><td style="text-align:left">Carga de páginas no presentes</td><td>Sistema Operativo</td></tr></table>
+<p style="margin-top:8px">Si el tamaño de página es potencia de 2, dividir es sólo separar bits: con páginas de 1 KB los 10 bits bajos son el desplazamiento.</p>`,
 vyd:`<h3>Ventajas</h3><ul class="pro"><li>La traducción por hardware es rápida y transparente para el programa.</li><li>El bit de presencia permite detectar automáticamente qué falta cargar.</li><li>El SO sólo interviene cuando hay un fallo: el caso común (página presente) no lo involucra.</li></ul>
 <h3>Desventajas</h3><ul class="con"><li>Cada acceso a memoria requiere además leer la tabla de páginas (en la práctica se usa una caché, la TLB).</li><li>El fallo de página bloquea al proceso durante una E/S de disco.</li><li>La instrucción interrumpida debe poder reiniciarse: exige cuidado en el diseño del procesador.</li></ul>`},
 vecindad:{
-concepto:``,
+concepto:`<h3>Principio de vecindad (localidad)</h3>
+<p>Durante un intervalo de tiempo, un proceso tiende a referenciar un <b>conjunto reducido de páginas</b> (un bucle, la pila, las variables que está usando). Con el tiempo ese conjunto cambia, pero lentamente. Por eso la memoria virtual funciona: si las páginas de la “zona activa” están en memoria, los fallos son poco frecuentes.</p>
+<p>El <b>conjunto de trabajo</b> W(t, Δ) es el conjunto de páginas referenciadas en las últimas Δ referencias. Su tamaño indica cuántos marcos necesita el proceso en ese momento.</p>
+<h4>Se debe tener cuidado al determinar</h4>
+<ul><li><b>Tamaño de las páginas</b>: páginas pequeñas aprovechan mejor la localidad pero requieren más marcos y tablas más grandes; páginas grandes cargan información que quizá no se use.</li><li><b>Páginas asignadas en memoria principal</b>: la <b>cantidad</b> (cercana al conjunto de trabajo) y la <b>asignación</b>: <i>fija</i> (cantidad constante de marcos) o <i>variable</i> (la cantidad se ajusta a lo largo de la ejecución).</li></ul>
+<p class="note">La traza del diagrama es sintética pero tiene fases de localidad, como la figura de la diapositiva.</p>`,
 vyd:`<h3>Asignación fija</h3><ul class="pro"><li>Simple de implementar y predecible.</li><li>Un proceso no perjudica a otros.</li></ul><ul class="con"><li>Si se asignan pocos marcos, muchos fallos; si son demasiados, se desperdicia memoria.</li><li>No se adapta a los cambios de fase del proceso.</li></ul>
 <h3>Asignación variable (conjunto de trabajo)</h3><ul class="pro"><li>Ajusta la memoria a la localidad real del proceso.</li><li>Permite mantener más procesos con pocos fallos.</li></ul><ul class="con"><li>Mayor sobrecarga: hay que medir el uso de páginas.</li><li>Elegir Δ no es trivial: chico, pierde localidad; grande, desperdicia memoria.</li></ul>`},
 politicas:{
-concepto:``,
+concepto:`<h4>Las tres políticas</h4><ul><li><b>Búsqueda</b>: cuándo traer una página a memoria (por demanda / pre-paginación).</li><li><b>Limpieza</b>: cuándo escribir en disco una página modificada (por demanda / pre-limpieza / usando buffer).</li><li><b>Reemplazo</b>: qué página desalojar; su <b>alcance</b> puede ser local o global, y los principales algoritmos son Óptimo, FIFO, LRU y LFU (sección 6).</li></ul>`,
 sub:{
-busqueda:``,
-limpieza:``,
-alcance:``},
+busqueda:`<h3>Política de Búsqueda</h3><p><b>Por demanda:</b> una página se trae a memoria sólo cuando se la referencia y produce un fallo. Al comenzar la ejecución hay muchos fallos; luego, por el principio de vecindad, se estabiliza.</p><p><b>Pre-paginación:</b> además de la página pedida se traen otras (por ejemplo, las contiguas en disco), aprovechando que leer varios bloques seguidos cuesta casi lo mismo que leer uno. Funciona bien si esas páginas efectivamente se usan.</p>`,
+limpieza:`<h3>Política de Limpieza</h3><p>Determina cuándo se escribe en disco una página <b>modificada</b> (bit M = 1).</p><ul><li><b>Por demanda:</b> se escribe sólo cuando es elegida para reemplazo. El proceso que produjo el fallo espera dos E/S.</li><li><b>Pre-limpieza:</b> se escriben antes de necesitar sus marcos, en lotes.</li><li><b>Usando buffer:</b> las víctimas pasan a listas de páginas libres o modificadas; las modificadas se escriben por lotes, y si una página se vuelve a referenciar mientras está en el buffer se recupera sin E/S.</li></ul>`,
+alcance:`<h3>Política de Reemplazo: alcance</h3><p><b>Local:</b> la víctima se elige entre las páginas del <i>mismo</i> proceso que produjo el fallo. Va de la mano con la asignación fija (el ejemplo de la cátedra: 3 marcos, reemplazo local).</p><p><b>Global:</b> la víctima puede ser cualquier página de la memoria, de cualquier proceso. Un proceso puede “robar” marcos a otro.</p><p>En el diagrama ambos usan LRU; P2 recorre más páginas que P1.</p>`},
 vyd:'',
 vydSub:{
 busqueda:`<h3>Por demanda</h3><ul class="pro"><li>Sólo se cargan páginas que realmente se usan.</li></ul><ul class="con"><li>Muchos fallos al iniciar o al cambiar de fase.</li></ul><h3>Pre-paginación</h3><ul class="pro"><li>Menos fallos y menos operaciones de E/S si hay acceso secuencial.</li></ul><ul class="con"><li>Desperdicia memoria y E/S si las páginas precargadas no se usan (probá la cadena “dispersa”).</li></ul>`,
 limpieza:`<h3>Por demanda</h3><ul class="pro"><li>Sólo se escribe lo estrictamente necesario.</li></ul><ul class="con"><li>El fallo tarda el doble si la víctima está modificada.</li></ul><h3>Pre-limpieza</h3><ul class="pro"><li>En el fallo sólo hay que leer; las escrituras se agrupan.</li></ul><ul class="con"><li>Puede escribir páginas que se vuelven a modificar antes de ser reemplazadas: E/S desperdiciada.</li></ul><h3>Usando buffer</h3><ul class="pro"><li>Combina lo mejor: escrituras en lote y posibilidad de recuperar víctimas sin E/S.</li></ul><ul class="con"><li>Reserva marcos para el buffer y complica la administración.</li></ul>`,
 alcance:`<h3>Local</h3><ul class="pro"><li>Aísla a los procesos: el comportamiento de uno no afecta a los demás.</li><li>Predecible.</li></ul><ul class="con"><li>No aprovecha marcos que otro proceso no está usando.</li><li>Un proceso con pocos marcos puede hiperpaginar aunque haya memoria ociosa.</li></ul><h3>Global</h3><ul class="pro"><li>Se adapta automáticamente: quien más necesita, más marcos obtiene.</li><li>Suele dar menos fallos en total.</li></ul><ul class="con"><li>Un proceso puede quitarle marcos a otro y empeorar su rendimiento.</li><li>Los fallos de un proceso dependen de los demás.</li></ul>`}},
 algoritmos:{
-belady:``,
-concepto:``,
+belady:`<h3>Complementario: anomalía de Belady</h3><p>Lo intuitivo es que con más marcos haya menos fallos. Con <b>FIFO</b> no siempre ocurre: con la cadena 1 2 3 4 1 2 5 1 2 3 4 5 hay <b>9 fallos con 3 marcos</b> y <b>10 fallos con 4</b>. LRU y Óptimo no sufren esta anomalía: el conjunto de páginas en memoria con k marcos siempre está incluido en el que tendrían con k + 1 (algoritmos “de pila”). Los fallos con marcos vacíos también cuentan.</p><hr style="border:0;border-top:1px solid var(--rule)">`,
+concepto:`<h3>Algoritmos de reemplazo</h3>
+<p>Cuando hay un fallo de página y el proceso no tiene marcos libres, el SO debe elegir una <b>víctima</b>. Con reemplazo local y asignación fija (3 marcos), la víctima es siempre una página del mismo P1.</p>
+<ul>
+<li><b>Óptimo o Ideal:</b> reemplaza la página que tardará más en volver a usarse. Da el mínimo de fallos posible, pero requiere conocer el futuro: sirve como referencia para comparar. Si hay empate (varias que no se vuelven a usar), en este laboratorio se desempata por LRU.</li>
+<li><b>FIFO</b> (First-In First-Out): reemplaza la página cargada hace más tiempo (columna <i>Tiempo Carga</i>). Simple, pero puede desalojar páginas muy usadas.</li>
+<li><b>LRU</b> (Least Recently Used): reemplaza la página usada hace más tiempo (columna <i>Tiempo Último Acceso</i>, que se actualiza en cada acceso y al cargar). Aproxima bien al óptimo gracias al principio de vecindad.</li>
+<li><b>LFU</b> (Least Frequently Used): reemplaza la página con menos accesos (columna <i>Cantidad de Accesos</i>). Una página recién cargada empieza en 0 y suma 1 en cada acceso posterior.</li></ul>
+<h4>Cómo leer la tabla</h4>
+<p>Como en las diapositivas: los valores que cambian quedan <span class="st">tachados</span> y el nuevo se escribe al lado. La flecha ocre marca la página referenciada; la roja, la víctima. Para cada dirección se calcula # Pág. = dirección div 1024 y desplazamiento = dirección − inicio de la página.</p>
+<h4>Complementario: Segunda Oportunidad / Reloj</h4>
+<p>Variante de FIFO con un <b>bit de referencia R</b> por página. El puntero recorre los marcos en orden de carga: si R = 1, lo pone en 0 y le da una “segunda oportunidad”; si R = 0, esa página es la víctima. Aproxima a LRU con muy poco costo de hardware.</p>`,
 vyd:`<h3>Óptimo</h3><ul class="pro"><li>Mínima cantidad de fallos: cota inferior para evaluar otros algoritmos.</li></ul><ul class="con"><li>Irrealizable: requiere conocer las referencias futuras.</li></ul>
 <h3>FIFO</h3><ul class="pro"><li>Muy simple: una cola de páginas en orden de carga.</li></ul><ul class="con"><li>Ignora el uso: puede desalojar una página muy usada.</li><li>Sufre la anomalía de Belady.</li></ul>
 <h3>LRU</h3><ul class="pro"><li>Buen rendimiento: aprovecha la localidad.</li><li>No sufre la anomalía de Belady.</li></ul><ul class="con"><li>Costoso: hay que registrar el momento de cada acceso (hardware especial o aproximaciones como el reloj).</li></ul>
@@ -3906,7 +3975,7 @@ function buildSection(sec) {
     h("div", { class: "stage-h" }, h("div", {}, h("div", { class: "eyebrow" }, sec.eyebrow), h("h2", {}, sec.title)), h("div", { class: "sub" }, sec.sub || ""), copyBtn),
     stageBody, stepper, copyBox);
   // panel de pestañas
-  const tabsDef = [["pasos", "Paso a paso"], ["vyd", "Ventajas y desventajas"], ["ej", "Ejercicio"]];
+  const tabsDef = [["concepto", "Concepto"], ["pasos", "Paso a paso"], ["vyd", "Ventajas y desventajas"], ["ej", "Ejercicio"]];
   const tabc = {};
   const tabs = h("div", { class: "tabs", role: "tablist" });
   const panel = h("aside", { class: "panel" }, tabs);
@@ -3915,7 +3984,7 @@ function buildSection(sec) {
     tabc[k] = h("div", { class: "tabc", "data-k": k });
     panel.append(tabc[k]);
   }
-  if (tabc.concepto) tabc.concepto.innerHTML = sec.concepto;
+  tabc.concepto.innerHTML = sec.concepto;
   tabc.vyd.innerHTML = sec.ventajas;
   const stepList = h("ol", { class: "steps" });
   tabc.pasos.append(h("p", { class: "small muted" }, sec.pasosIntro || "Cada paso actualiza el diagrama. Hacé clic en un paso para saltar a él."), stepList);
@@ -3999,7 +4068,7 @@ function show(id) {
   App.cur = sec;
   SECTIONS.forEach(s => s.dom.root.classList.toggle("on", s === sec));
   $$("#nav a").forEach(a => a.classList.toggle("on", a.dataset.id === sec.id));
-  if (!App.tab[sec.id]) setTab(sec, "pasos");
+  if (!App.tab[sec.id]) setTab(sec, "concepto");
   sec._exInit && sec._exInit();
   refresh(sec);
 }
@@ -4162,7 +4231,9 @@ const sec1 = {
     if (L.id === "log") this.detail.append(h("a", { class: "btn", href: "#asignacion", style: "margin-right:.4rem" }, "Métodos de asignación →"), h("a", { class: "btn", href: "#inodo" }, "INodo →"));
   },
   steps: s1Steps,
-  concepto: ``,
+  concepto: `<p>Entre los recursos <i>virtuales</i> que administra el SO (programas, procesos, archivos, conexiones) está el <b>archivo</b>. El Sistema de Archivos es la parte del módulo de Entrada/Salida que se ocupa del almacenamiento: ofrece al usuario nombres y directorios, y oculta pistas, sectores y controladores.</p>
+<p>Se organiza en <b>capas</b>: cada una usa los servicios de la de abajo y ofrece una abstracción a la de arriba. La <b>Administración de Sistemas de Archivos</b> abarca la capa de <b>Archivos</b>, la <b>Organización Lógica</b> y la <b>Organización Física</b>; debajo, el driver del dispositivo y la planificación y control de la E/S.</p>
+<p>Los objetivos se tensionan entre sí: optimizar el <i>tiempo de acceso</i> pide datos contiguos; optimizar el <i>espacio utilizado</i> pide aprovechar cualquier hueco libre. Cada método de asignación es un compromiso distinto.</p>`,
   ventajas: `<h4>Diseño en capas</h4><ul><li class="pro">Cada capa resuelve un único problema (nombres, asignación, ubicación física, dispositivo).</li><li class="pro">Independencia del dispositivo: cambiar el disco sólo afecta al driver y a la organización física.</li><li class="pro">Las aplicaciones son portables: sólo conocen nombres y posiciones.</li><li class="con">Cada capa agrega traducciones, tablas y copias: costo de tiempo.</li><li class="con">Algunas optimizaciones necesitan información de otra capa (p. ej. ubicar contiguos los bloques que se leen juntos).</li></ul>`,
   exercise(rng) {
     const pool = [
@@ -4420,7 +4491,10 @@ const sec2 = {
         h("p", { class: "mono small", style: "margin:.4rem 0 0" }, `usado = ${fmt(u)} B · bloques = ⌈${fmt(u)} / ${fmt(B)}⌉ = ${nb} · alocado = ${nb} × ${fmt(B)} = ${fmt(a)} B · desperdicio = ${fmt(waste)} B (${a ? fmtDec(100 * waste / a, 1) : "0,0"} %)`));
     } else this.frag.replaceChildren(h("h3", {}, "Tamaño alocado vs. tamaño usado"), h("p", { class: "small muted", style: "margin:0" }, "Seleccioná un archivo de datos para ver cuántos bloques ocupa y cuánto se desperdicia en el último."));
   },
-  concepto: ``,
+  concepto: `<p>La <b>capa de archivos</b> es la que ve el usuario. Hay tres <b>tipos de archivos</b>: <b>directorios</b> (contienen una tabla de entradas con nombres de otros archivos), <b>archivos de datos</b> (los únicos que pasan a las capas de organización lógica y física) y <b>accesos directos</b> (contienen la ruta de otro archivo).</p>
+<p>Los directorios forman un <b>árbol</b>. En <b>Windows</b> cada unidad (<span class="mono">C:\\</span>, <span class="mono">D:\\</span>) es la raíz de su propio árbol; en <b>Linux</b> hay una única raíz <span class="mono">/</span> y los demás dispositivos se <i>montan</i> como directorios (<span class="mono">/mnt/cdrom</span>). Una <b>ruta (PATH)</b> absoluta parte de la raíz; una relativa, del directorio actual.</p>
+<p>La <b>Tabla de Archivos</b> guarda las <b>propiedades</b> de cada archivo: Nombre + Extensión, Ubicación (PATH), Tipo, Tamaño alocado, Tamaño usado, Usuario dueño, Permisos, Datos de auditoría… Y el SO ofrece <b>métodos</b>: Crear, Leer, Borrar, Grabar, Listar…</p>
+<p>El espacio se asigna en <b>bloques/clusters</b> enteros: el <i>tamaño alocado</i> es múltiplo del bloque y supera al <i>usado</i>; la diferencia en el último bloque es <b>fragmentación interna</b>.</p>`,
   ventajas: `<h4>Árbol jerárquico</h4><ul><li class="pro">Nombres repetidos en distintos directorios; organización por usuario y por tema.</li><li class="pro">Búsqueda acotada a un directorio; permisos por subárbol.</li><li class="con">Cada componente de la ruta es una búsqueda (y posiblemente un acceso a disco).</li></ul>
 <h4>Raíz única (Linux) vs. unidades (Windows)</h4><ul><li class="pro">Raíz única: el usuario no necesita saber en qué dispositivo está cada cosa.</li><li class="pro">Unidades: queda explícito qué disco se usa.</li><li class="con">Unidades: las rutas dependen de la letra asignada al dispositivo.</li></ul>
 <h4>Accesos directos</h4><ul><li class="pro">Compartir un archivo desde varios lugares sin duplicarlo.</li><li class="con">Si se borra el destino queda un acceso directo «colgado».</li></ul>
@@ -4756,7 +4830,11 @@ const sec3 = {
         S3.damaged != null ? h("div", { class: "small", html: `<b class="bad">Cluster dañado: C${S3.damaged}.</b> ${fsel ? `«${S3.sel}» pierde ${lostN} de ${blocksOf(fsel).length} bloques` : ""} ${m === "encadenada" ? "— en encadenada un puntero roto deja inaccesible todo el resto de la cadena." : m === "indexada" ? "— en indexada sólo se pierde ese bloque, salvo que el dañado sea el bloque índice (se pierde todo)." : "— en contigua sólo se pierde ese bloque."}` }) : null),
       h("div", { style: "overflow-x:auto;margin-top:.7rem" }, cmpT), free);
   },
-  concepto: ``,
+  concepto: `<p>La <b>organización lógica</b> ve cada archivo de datos como una secuencia de <b>bloques</b> B0, B1, … y el almacenamiento como un <b>Disco Lógico</b>: una secuencia numerada de <b>clusters</b> C0, C1, C2… El problema es decidir en qué cluster va cada bloque y registrarlo en la <b>Tabla de Archivos</b>.</p>
+<p><b>Asignación Contigua.</b> Los bloques ocupan clusters consecutivos; la tabla guarda <i>bloque inicial</i> y <i>longitud</i> (pepe.txt: 36, 6 → C36…C41). Bk está en inicio + k.</p>
+<p><b>Asignación Encadenada.</b> Cada cluster guarda, además de los datos, un <b>puntero al siguiente</b>; la tabla guarda bloque inicial y longitud (pepe.txt: 36, 6 → C36 → C56 → C44 → C63 → C40 → C41). Para llegar a Bk hay que leer B0…Bk.</p>
+<p><b>Asignación Indexada.</b> Un <b>bloque índice</b> (I) contiene la lista de clusters del archivo; la tabla guarda sólo ese bloque (pepe.txt: 36; el índice C36 apunta a C28, C56, C44, C63, C40, C41). Para archivos grandes se usan índices de varios niveles: el <b>INodo</b>.</p>
+<p>Como complemento, el SO registra qué clusters están libres: <b>mapa de bits</b> o <b>lista de libres</b>.</p>`,
   ventajas: `<h4>Contigua</h4><ul><li class="pro">Acceso directo a Bk con una sola lectura; lectura secuencial muy rápida (poco movimiento del brazo).</li><li class="pro">Tabla mínima: inicio y longitud.</li><li class="con"><b>Fragmentación externa</b>: puede haber espacio libre suficiente pero no contiguo (ver escenario).</li><li class="con">Hay que conocer el tamaño al crear; agrandar puede obligar a mover el archivo. Compactar es costoso.</li></ul>
 <h4>Encadenada</h4><ul><li class="pro">Sin fragmentación externa: cualquier cluster libre sirve; el archivo crece fácilmente.</li><li class="con">Acceso a Bk: k + 1 lecturas (sólo secuencial).</li><li class="con">Cada cluster pierde espacio para el puntero; un puntero roto pierde el resto del archivo.</li></ul>
 <h4>Indexada</h4><ul><li class="pro">Sin fragmentación externa y con acceso directo: índice + dato (2 lecturas, 1 si el índice está en memoria).</li><li class="pro">Un daño en un bloque de datos afecta sólo a ese bloque.</li><li class="con">Un cluster extra por archivo para el índice (pesa en archivos chicos).</li><li class="con">El índice tiene tamaño limitado: para archivos grandes, índices multinivel (INodo).</li></ul>`,
@@ -4910,7 +4988,10 @@ const sec4 = {
         h("p", { class: "small muted", style: "margin:.4rem 0 0" }, "Casi todo el tamaño lo aporta la indirección triple (n³). Un tope adicional real: con punteros de p bytes se direccionan como mucho 2^(8p) bloques en el disco.")),
       h("div", { style: "overflow-x:auto" }, rt)));
   },
-  concepto: ``,
+  concepto: `<p>El <b>INodo</b> es el bloque índice de la asignación indexada llevada a varios niveles. Cada archivo tiene un INodo (con sus propiedades) que contiene:</p>
+<ul><li><b>Punteros Directos</b>: D punteros que apuntan directamente a los primeros D bloques de dato.</li><li><b>Puntero de Indirección Simple</b>: apunta a un <i>INodo Simple</i>, un bloque lleno de punteros directos (n = tamaño de bloque / tamaño de puntero).</li><li><b>Puntero de Indirección Doble</b>: apunta a un <i>INodo Doble</i>, cuyos n punteros apuntan a INodos Simples (n² bloques).</li><li><b>Puntero de Indirección Triple</b>: INodo Triple → INodos Dobles → INodos Simples → n³ bloques.</li></ul>
+<p>Tamaño máximo de archivo = (D + n + n² + n³) × tamaño de bloque. Con 10 directos, bloques de 1 KB y punteros de 4 B: n = 256 y el máximo es 17.247.250.432 B ≈ 16,06 GiB.</p>
+<p>Leer el bloque lógico b cuesta 1 acceso si es directo, 2 en simple, 3 en doble y 4 en triple (con el INodo en memoria).</p>`,
   ventajas: `<ul><li class="pro">Los archivos chicos (la mayoría) se resuelven sólo con punteros directos: acceso rápido y sin bloques índice extra.</li><li class="pro">Los archivos grandes pueden crecer hasta tamaños enormes agregando niveles.</li><li class="pro">Acceso directo a cualquier bloque con a lo sumo 4 lecturas; sin fragmentación externa.</li><li class="con">Los bloques del final de archivos grandes necesitan varias lecturas extra (se mitiga con caché de bloques índice).</li><li class="con">Los INodos y bloques índice ocupan espacio; el tamaño máximo queda fijado por D, el bloque y el puntero.</li><li class="con">Los datos pueden quedar dispersos: lectura secuencial más lenta que en contigua.</li></ul>`,
   exercise(rng) {
     const D = pick(rng, [8, 10, 12]), B = pick(rng, [1024, 2048, 4096]), p = pick(rng, [4, 8]), n = inodeN(B, p), R = inodeRanges(D, n);
@@ -5057,7 +5138,9 @@ const sec5 = {
           h("tr", {}, h("td", {}, "Pistas que se mueve el brazo"), ...sc.rows.map(r => h("td", { class: "n" + (r.d ? " bad" : "") }, r.d)))))),
       h("p", { class: "small", style: "margin:.4rem 0 0" }, h("b", {}, `Cambios de pista: ${sc.changes} · desplazamiento total del brazo: ${sc.dist} pistas`), " (partiendo de la pista 0). Los clusters contiguos en el disco lógico quedan contiguos en el físico: por eso la asignación contigua minimiza las búsquedas.")));
   },
-  concepto: ``,
+  concepto: `<p>La <b>organización física</b> traduce el <b>Disco Lógico</b> (una secuencia de clusters C0, C1, …) al <b>Disco Físico</b>: platos con <b>pistas</b> concéntricas divididas en <b>sectores</b>, la mínima unidad que el hardware lee o escribe.</p>
+<p>Un <b>cluster</b> es un grupo de k sectores contiguos. Numerando los sectores en orden (pista 0 completa, luego pista 1…), el cluster C ocupa los sectores lógicos C·k … C·k + k − 1, y cada sector lógico L está en la pista ⌊L / S⌋, sector L mod S (S = sectores por pista). En discos con varias caras se agrega la cabeza (direccionamiento CHS); los discos actuales exponen directamente el número de sector lógico (LBA) y hacen la traducción en su controlador.</p>
+<p>Leer un cluster cuesta: <b>búsqueda</b> (mover el brazo a la pista) + <b>latencia rotacional</b> (esperar el sector) + <b>transferencia</b>.</p>`,
   ventajas: `<h4>Cluster grande (k alto)</h4><ul><li class="pro">Menos clusters que administrar: tablas, mapas de bits e índices más chicos.</li><li class="pro">Más datos por cada búsqueda: mejor rendimiento secuencial.</li><li class="con">Más fragmentación interna en el último cluster de cada archivo.</li></ul>
 <h4>Cluster chico (k bajo)</h4><ul><li class="pro">Menos desperdicio en archivos pequeños.</li><li class="con">Más punteros/entradas por archivo y más operaciones de E/S.</li></ul>
 <h4>Contigüidad física</h4><ul><li class="pro">Clusters consecutivos quedan en la misma pista o en pistas vecinas: casi sin búsquedas.</li><li class="con">Archivos dispersos (encadenada, indexada) obligan al brazo a ir y venir.</li></ul>`,
